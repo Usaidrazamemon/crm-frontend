@@ -1,7 +1,9 @@
+
 import axios from "axios";
 
 const api = axios.create({
-  baseURL: process.env.REACT_APP_API_URL || "http://localhost:5000/api",
+  // Pehle env variable check karega, nahi toh direct aapke sahi backend par request bhejega
+  baseURL: process.env.REACT_APP_API_URL || "https://crm-backend-vercel.vercel.app/api",
 });
 
 api.interceptors.request.use(
