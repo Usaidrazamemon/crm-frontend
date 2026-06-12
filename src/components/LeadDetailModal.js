@@ -437,7 +437,8 @@ export default function LeadDetailModal({ lead, onClose, onLeadUpdated }) {
                 {lead.docs.map((doc, i) => (
                   <div key={i} style={{ display: "flex", alignItems: "center", gap: 8, padding: "8px 12px", background: "#f8fafc", borderRadius: 8, marginBottom: 6, border: "1px solid #f1f5f9" }}>
                     <span style={{ fontSize: 16 }}>📄</span>
-                    <a href={`http://localhost:5000${doc}`} target="_blank" rel="noreferrer" style={{ fontSize: 12, color: "#06b6d4", textDecoration: "none" }}>
+                    {/* Fixed: localhost prefix removed for secure production rendering */}
+                    <a href={doc.startsWith('http') ? doc : `https://crm-backend-vercel.vercel.app${doc}`} target="_blank" rel="noreferrer" style={{ fontSize: 12, color: "#06b6d4", textDecoration: "none" }}>
                       {doc.split("/").pop()}
                     </a>
                   </div>
@@ -449,8 +450,9 @@ export default function LeadDetailModal({ lead, onClose, onLeadUpdated }) {
                 <div style={{ fontSize: 12, fontWeight: 600, color: "#64748b", marginBottom: 8 }}>Photos ({lead.photos.length})</div>
                 <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
                   {lead.photos.map((photo, i) => (
-                    <a key={i} href={`http://localhost:5000${photo}`} target="_blank" rel="noreferrer">
-                      <img src={`http://localhost:5000${photo}`} alt={`photo-${i}`} style={{ width: 80, height: 80, objectFit: "cover", borderRadius: 8, border: "1px solid #f1f5f9" }} />
+                    /* Fixed: localhost prefix removed for secure Cloudinary/production dynamic rendering */
+                    <a key={i} href={photo.startsWith('http') ? photo : `https://crm-backend-vercel.vercel.app${photo}`} target="_blank" rel="noreferrer">
+                      <img src={photo.startsWith('http') ? photo : `https://crm-backend-vercel.vercel.app${photo}`} alt={`photo-${i}`} style={{ width: 80, height: 80, objectFit: "cover", borderRadius: 8, border: "1px solid #f1f5f9" }} />
                     </a>
                   ))}
                 </div>
