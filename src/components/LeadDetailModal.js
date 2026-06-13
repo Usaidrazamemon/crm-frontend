@@ -1,4 +1,6 @@
 
+
+           
 import { formatPhone, displayPhone } from '../utils/phoneFormat';
 import React, { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
@@ -418,18 +420,7 @@ export default function LeadDetailModal({ lead, onClose, onLeadUpdated }) {
           <div>
             <div style={{ fontSize: 11, fontWeight: 700, color: "#94a3b8", letterSpacing: "0.08em", textTransform: "uppercase", marginBottom: 12 }}>Documents & Photos</div>
 
-            {/* Upload Buttons */}
-            <div style={{ display: "flex", gap: 10, marginBottom: 16, flexWrap: "wrap" }}>
-              <label style={{ display: "flex", alignItems: "center", gap: 6, padding: "8px 14px", borderRadius: 8, background: "linear-gradient(135deg, #06b6d4, #0284c7)", color: "#fff", cursor: uploading ? "not-allowed" : "pointer", fontSize: 12, fontWeight: 600, opacity: uploading ? 0.7 : 1 }}>
-                📷 Upload Photo
-                <input type="file" accept="image/*" multiple hidden disabled={uploading} onChange={(e) => handleFileUpload(e, "photos")} />
-              </label>
-              <label style={{ display: "flex", alignItems: "center", gap: 6, padding: "8px 14px", borderRadius: 8, background: "linear-gradient(135deg, #8b5cf6, #6d28d9)", color: "#fff", cursor: uploading ? "not-allowed" : "pointer", fontSize: 12, fontWeight: 600, opacity: uploading ? 0.7 : 1 }}>
-                📄 Upload Document
-                <input type="file" accept=".pdf,.doc,.docx,.txt" multiple hidden disabled={uploading} onChange={(e) => handleFileUpload(e, "docs")} />
-              </label>
-              {uploading && <div style={{ fontSize: 12, color: "#94a3b8", display: "flex", alignItems: "center" }}>⏳ Uploading...</div>}
-            </div>
+
 
             {lead.docs?.length > 0 && (
               <div style={{ marginBottom: 16 }}>
