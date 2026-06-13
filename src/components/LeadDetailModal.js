@@ -1,6 +1,5 @@
 
-
-           import { formatPhone, displayPhone } from '../utils/phoneFormat';
+import { formatPhone, displayPhone } from '../utils/phoneFormat';
 import React, { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { MdClose, MdPhone, MdEmail, MdPerson, MdEdit, MdSave } from "react-icons/md";
@@ -428,7 +427,9 @@ export default function LeadDetailModal({ lead, onClose, onLeadUpdated }) {
                   <div key={i} style={{ display: "flex", alignItems: "center", gap: 8, padding: "8px 12px", background: "#f8fafc", borderRadius: 8, marginBottom: 6, border: "1px solid #f1f5f9" }}>
                     <span style={{ fontSize: 16 }}>📄</span>
                     <a 
-                      href={doc.startsWith("http") ? doc : `https://crm-backend-vercel.vercel.app${doc}`} 
+                      href={doc.startsWith("http") 
+                        ? `https://docs.google.com/viewer?url=${encodeURIComponent(doc)}`
+                        : `https://crm-backend-vercel.vercel.app${doc}`} 
                       target="_blank" rel="noreferrer"
                       style={{ fontSize: 12, color: "#06b6d4", textDecoration: "none" }}>
                       📄 View Document
