@@ -1,3 +1,4 @@
+
 import { formatPhone } from '../../utils/phoneFormat';
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
@@ -63,12 +64,19 @@ export default function CreateLead() {
     if (docs.length === 0 && photos.length === 0 && !callLogNote) return;
     setUploadingFiles(true);
     try {
-      // Upload docs and photos
-      if (docs.length > 0 || photos.length > 0) {
-        const formData = new FormData();
-        docs.forEach(f => formData.append("docs", f));
-        photos.forEach(f => formData.append("photos", f));
-        await api.post(`/upload/${leadId}`, formData, {
+      // Upload docs separately
+      if (docs.length > 0) {
+        const docsForm = new FormData();
+        docs.forEach(f => docsForm.append("docs", f));
+        await api.post(`/upload/${leadId}/docs`, docsForm, {
+          headers: { "Content-Type": "multipart/form-data" },
+        });
+      }
+      // Upload photos separately
+      if (photos.length > 0) {
+        const photosForm = new FormData();
+        photos.forEach(f => photosForm.append("photos", f));
+        await api.post(`/upload/${leadId}/photos`, photosForm, {
           headers: { "Content-Type": "multipart/form-data" },
         });
       }
