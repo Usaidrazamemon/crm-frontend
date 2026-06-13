@@ -439,12 +439,10 @@ export default function LeadDetailModal({ lead, onClose, onLeadUpdated }) {
                   <div key={i} style={{ display: "flex", alignItems: "center", gap: 8, padding: "8px 12px", background: "#f8fafc", borderRadius: 8, marginBottom: 6, border: "1px solid #f1f5f9" }}>
                     <span style={{ fontSize: 16 }}>📄</span>
                     <a 
-                      href={doc.startsWith("http") ? 
-                        (doc.includes("cloudinary") ? doc.replace("/raw/upload/", "/raw/upload/fl_attachment/") : doc) 
-                        : `https://crm-backend-vercel.vercel.app${doc}`} 
-                      target="_blank" rel="noreferrer" 
+                      href={doc.startsWith("http") ? doc : `https://crm-backend-vercel.vercel.app${doc}`} 
+                      target="_blank" rel="noreferrer"
                       style={{ fontSize: 12, color: "#06b6d4", textDecoration: "none" }}>
-                      {doc.split("/").pop().split("?")[0]}
+                      📄 {decodeURIComponent(doc.split("/").pop())}
                     </a>
                   </div>
                 ))}
