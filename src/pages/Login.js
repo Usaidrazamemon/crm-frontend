@@ -1,11 +1,8 @@
-
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import toast, { Toaster } from "react-hot-toast";
 import { MdVisibility, MdVisibilityOff } from "react-icons/md";
-import PhoneInput from "react-phone-input-2";
-import "react-phone-input-2/lib/style.css";
 import api from "../api/axios";
 import logo from "../assets/logo.jpeg";
 
@@ -61,12 +58,33 @@ export default function Login() {
           padding: 40, boxShadow: "0 25px 50px rgba(0,0,0,0.5)",
         }}>
 
-        {/* Logo */}
+        {/* Logo + Title */}
         <motion.div initial={{ scale: 0.8, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} transition={{ delay: 0.2 }}
           style={{ textAlign: "center", marginBottom: 32 }}>
-          <img src={logo} alt="ConnectCare Global"
-            style={{ width: 140, height: "auto", marginBottom: 12, borderRadius: 12, objectFit: "contain" }} />
-          <p style={{ color: "rgba(255,255,255,0.4)", fontSize: 13, marginTop: 4 }}>Sign in to your account</p>
+
+          {/* Logo - no white background */}
+          <div style={{ display: "inline-flex", alignItems: "center", justifyContent: "center", marginBottom: 16 }}>
+            <img src={logo} alt="ConnectCare Global"
+              style={{
+                width: 60, height: 60,
+                borderRadius: "50%",
+                objectFit: "cover",
+                background: "transparent",
+              }} />
+          </div>
+
+          {/* Company Name */}
+          <div style={{ marginBottom: 6 }}>
+            <span style={{ fontSize: 22, fontWeight: 800, color: "#fff", letterSpacing: "0.01em" }}>ConnectCare </span>
+            <span style={{ fontSize: 22, fontWeight: 800, color: "#06b6d4" }}>Global</span>
+          </div>
+
+          {/* Tagline */}
+          <p style={{ color: "rgba(255,255,255,0.35)", fontSize: 12, margin: 0, letterSpacing: "0.08em", textTransform: "uppercase" }}>
+            Brings Innovation With Ease
+          </p>
+
+          <div style={{ width: 40, height: 2, background: "linear-gradient(90deg, #06b6d4, #0284c7)", borderRadius: 2, margin: "14px auto 0" }} />
         </motion.div>
 
         <form onSubmit={handleSubmit}>
