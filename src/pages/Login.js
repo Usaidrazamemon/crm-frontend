@@ -1,3 +1,4 @@
+
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
@@ -62,14 +63,25 @@ export default function Login() {
         <motion.div initial={{ scale: 0.8, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} transition={{ delay: 0.2 }}
           style={{ textAlign: "center", marginBottom: 32 }}>
 
-          {/* Logo - no white background */}
-          <div style={{ display: "inline-flex", alignItems: "center", justifyContent: "center", marginBottom: 16 }}>
+          {/* Logo - cropped to show only the icon, no text */}
+          <div style={{
+            display: "inline-flex",
+            alignItems: "center",
+            justifyContent: "center",
+            marginBottom: 16,
+            width: 60,
+            height: 60,
+            borderRadius: "50%",
+            overflow: "hidden",
+            background: "transparent",
+          }}>
             <img src={logo} alt="ConnectCare Global"
               style={{
-                width: 60, height: 60,
-                borderRadius: "50%",
+                width: 150,
+                height: 150,
                 objectFit: "cover",
-                background: "transparent",
+                objectPosition: "left center",
+                transform: "scale(1.4) translateX(-10px)",
               }} />
           </div>
 
@@ -78,11 +90,6 @@ export default function Login() {
             <span style={{ fontSize: 22, fontWeight: 800, color: "#fff", letterSpacing: "0.01em" }}>ConnectCare </span>
             <span style={{ fontSize: 22, fontWeight: 800, color: "#06b6d4" }}>Global</span>
           </div>
-
-          {/* Tagline */}
-          <p style={{ color: "rgba(255,255,255,0.35)", fontSize: 12, margin: 0, letterSpacing: "0.08em", textTransform: "uppercase" }}>
-            Brings Innovation With Ease
-          </p>
 
           <div style={{ width: 40, height: 2, background: "linear-gradient(90deg, #06b6d4, #0284c7)", borderRadius: 2, margin: "14px auto 0" }} />
         </motion.div>
