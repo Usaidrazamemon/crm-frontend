@@ -5,7 +5,7 @@ import { motion } from "framer-motion";
 import toast, { Toaster } from "react-hot-toast";
 import { MdVisibility, MdVisibilityOff } from "react-icons/md";
 import api from "../api/axios";
-import logo from "../assets/logo.jpeg";
+import logo from "../assets/logo.png";
 
 export default function Login() {
   const [email, setEmail] = useState("");
@@ -63,25 +63,21 @@ export default function Login() {
         <motion.div initial={{ scale: 0.8, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} transition={{ delay: 0.2 }}
           style={{ textAlign: "center", marginBottom: 32 }}>
 
-          {/* Logo - cropped to show only the icon, no text */}
+          {/* Logo - icon only, transparent background */}
           <div style={{
             display: "inline-flex",
             alignItems: "center",
             justifyContent: "center",
             marginBottom: 16,
-            width: 60,
-            height: 60,
-            borderRadius: "50%",
-            overflow: "hidden",
-            background: "transparent",
+            width: 64,
+            height: 64,
           }}>
             <img src={logo} alt="ConnectCare Global"
               style={{
-                width: 150,
-                height: 150,
-                objectFit: "cover",
-                objectPosition: "left center",
-                transform: "scale(1.4) translateX(-10px)",
+                width: "100%",
+                height: "100%",
+                objectFit: "contain",
+                background: "transparent",
               }} />
           </div>
 
