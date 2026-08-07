@@ -1,4 +1,3 @@
-
 import { formatPhone, displayPhone } from '../utils/phoneFormat';
 import React, { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
