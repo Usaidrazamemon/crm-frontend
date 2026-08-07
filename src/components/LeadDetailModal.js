@@ -280,24 +280,36 @@ export default function LeadDetailModal({ lead, onClose, onLeadUpdated }) {
             <div style={{ fontSize: 11, fontWeight: 700, color: "#94a3b8", letterSpacing: "0.08em", textTransform: "uppercase", marginBottom: 12 }}>Verification Info</div>
             <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
               {editing ? (
-                <>
-                  <div>
-                    <label style={labelStyle}>Workflow Status</label>
-                    <select style={inputStyle} value={editForm.workflowStatus} onChange={(e) => setEdit("workflowStatus", e.target.value)}>
-                      <option value="Pending">Pending</option>
-                      <option value="Pass">Pass</option>
-                      <option value="Cancel">Cancel</option>
-                      <option value="Reject">Reject</option>
-                      <option value="Fraud">Fraud</option>
-                      <option value="Duplicate">Duplicate</option>
-                    </select>
-                  </div>
-                  <EditField label="Work Order" value={editForm.workOrder} onChange={(e) => setEdit("workOrder", e.target.value)} />
-                  <EditField label="Prepayment" type="number" value={editForm.prepayment} onChange={(e) => setEdit("prepayment", e.target.value)} />
-                  <EditField label="Verifier Remarks" value={editForm.verifierRemarks} onChange={(e) => setEdit("verifierRemarks", e.target.value)} />
-                  <Field label="Verified By" value={lead.verifiedBy?.name} />
-                  <Field label="Verified Date" value={lead.verifiedAt ? new Date(lead.verifiedAt).toLocaleDateString() : null} />
-                </>
+                isAdmin ? (
+                  <>
+                    <div>
+                      <label style={labelStyle}>Workflow Status</label>
+                      <select style={inputStyle} value={editForm.workflowStatus} onChange={(e) => setEdit("workflowStatus", e.target.value)}>
+                        <option value="Pending">Pending</option>
+                        <option value="Pass">Pass</option>
+                        <option value="Cancel">Cancel</option>
+                        <option value="Reject">Reject</option>
+                        <option value="Fraud">Fraud</option>
+                        <option value="Duplicate">Duplicate</option>
+                      </select>
+                    </div>
+                    <EditField label="Work Order" value={editForm.workOrder} onChange={(e) => setEdit("workOrder", e.target.value)} />
+                    <EditField label="Prepayment" type="number" value={editForm.prepayment} onChange={(e) => setEdit("prepayment", e.target.value)} />
+                    <EditField label="Verifier Remarks" value={editForm.verifierRemarks} onChange={(e) => setEdit("verifierRemarks", e.target.value)} />
+                    <Field label="Verified By" value={lead.verifiedBy?.name} />
+                    <Field label="Verified Date" value={lead.verifiedAt ? new Date(lead.verifiedAt).toLocaleDateString() : null} />
+                  </>
+                ) : (
+                  <>
+                    {/* Agents can't change verification/workflow fields — these are Admin/Verifier only */}
+                    <Field label="Workflow Status" value={lead.workflowStatus} />
+                    <Field label="Work Order" value={lead.workOrder} />
+                    <Field label="Prepayment" value={lead.prepayment ? `$${lead.prepayment}` : null} />
+                    <Field label="Verified By" value={lead.verifiedBy?.name} />
+                    <Field label="Verified Date" value={lead.verifiedAt ? new Date(lead.verifiedAt).toLocaleDateString() : null} />
+                    <Field label="Verifier Remarks" value={lead.verifierRemarks} />
+                  </>
+                )
               ) : (
                 <>
                   <Field label="Workflow Status" value={lead.workflowStatus} />
