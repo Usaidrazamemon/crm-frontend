@@ -55,6 +55,7 @@ const StatusBadge = ({ status }) => {
     Processed: { bg: "#e0e7ff", color: "#3730a3" },
     Pass: { bg: "#d1fae5", color: "#065f46" },
     Cancel: { bg: "#fee2e2", color: "#991b1b" },
+    Reject: { bg: "#fee2e2", color: "#991b1b" },
     Fraud: { bg: "#fef3c7", color: "#92400e" },
     Duplicate: { bg: "#e0e7ff", color: "#3730a3" },
     Pending: { bg: "#f1f5f9", color: "#64748b" },
@@ -286,6 +287,7 @@ export default function LeadDetailModal({ lead, onClose, onLeadUpdated }) {
                       <option value="Pending">Pending</option>
                       <option value="Pass">Pass</option>
                       <option value="Cancel">Cancel</option>
+                      <option value="Reject">Reject</option>
                       <option value="Fraud">Fraud</option>
                       <option value="Duplicate">Duplicate</option>
                     </select>
