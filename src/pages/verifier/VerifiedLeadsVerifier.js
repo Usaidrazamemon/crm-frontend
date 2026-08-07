@@ -8,6 +8,7 @@ const StatusBadge = ({ status }) => {
   const config = {
     Pass: { bg: "#d1fae5", color: "#065f46" },
     Cancel: { bg: "#fee2e2", color: "#991b1b" },
+    Reject: { bg: "#fee2e2", color: "#991b1b" },
     Fraud: { bg: "#fef3c7", color: "#92400e" },
     Duplicate: { bg: "#e0e7ff", color: "#3730a3" },
     Pending: { bg: "#f1f5f9", color: "#64748b" },
