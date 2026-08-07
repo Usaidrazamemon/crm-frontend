@@ -138,6 +138,7 @@ function EditLeadModal({ lead, onClose, onSaved }) {
                 <option value="">-- Select --</option>
                 <option value="Pass">Pass</option>
                 <option value="Cancel">Cancel</option>
+                <option value="Reject">Reject</option>
                 <option value="Duplicate">Duplicate</option>
                 <option value="Fraud">Fraud</option>
                 <option value="Pending">Pending</option>
