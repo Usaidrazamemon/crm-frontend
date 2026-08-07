@@ -14,8 +14,12 @@ const tabs = [
 
 const Section = ({ title, children }) => (
   <div style={{ marginBottom: 20 }}>
-    <div style={{ fontSize: 11, fontWeight: 700, color: "#94a3b8", letterSpacing: "0.08em", textTransform: "uppercase", marginBottom: 10, paddingBottom: 6, borderBottom: "1px solid #f1f5f9" }}>{title}</div>
-    <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>{children}</div>
+    <div style={{ fontSize: 11, fontWeight: 700, color: "#94a3b8", letterSpacing: "0.08em", textTransform: "uppercase", marginBottom: 10, paddingBottom: 6, borderBottom: "1px solid #f1f5f9" }}>
+      {title}
+    </div>
+    <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
+      {children}
+    </div>
   </div>
 );
 
@@ -29,10 +33,17 @@ const Field = ({ label, value }) => (
 const EditField = ({ label, value, onChange, type = "text" }) => (
   <div>
     <label style={{ fontSize: 11, color: "#94a3b8", display: "block", marginBottom: 3 }}>{label}</label>
-    {type === "textarea" ? (
-      <textarea value={value} onChange={onChange} style={{ width: "100%", padding: "6px 10px", borderRadius: 6, border: "1px solid #e2e8f0", fontSize: 13, color: "#1e293b", outline: "none", background: "#fff", resize: "vertical", minHeight: 60, boxSizing: "border-box" }} />
+    {type === "select" ? (
+      <select value={value} onChange={onChange}
+        style={{ width: "100%", padding: "6px 10px", borderRadius: 6, border: "1px solid #e2e8f0", fontSize: 13, color: "#1e293b", outline: "none", background: "#fff" }}>
+        {value}
+      </select>
+    ) : type === "textarea" ? (
+      <textarea value={value} onChange={onChange}
+        style={{ width: "100%", padding: "6px 10px", borderRadius: 6, border: "1px solid #e2e8f0", fontSize: 13, color: "#1e293b", outline: "none", background: "#fff", resize: "vertical", minHeight: 60, boxSizing: "border-box" }} />
     ) : (
-      <input type={type} value={value} onChange={onChange} style={{ width: "100%", padding: "6px 10px", borderRadius: 6, border: "1px solid #e2e8f0", fontSize: 13, color: "#1e293b", outline: "none", background: "#fff", boxSizing: "border-box" }} />
+      <input type={type} value={value} onChange={onChange}
+        style={{ width: "100%", padding: "6px 10px", borderRadius: 6, border: "1px solid #e2e8f0", fontSize: 13, color: "#1e293b", outline: "none", background: "#fff", boxSizing: "border-box" }} />
     )}
   </div>
 );
@@ -60,7 +71,6 @@ export default function LeadDetailModal({ lead, onClose, onLeadUpdated }) {
   const [activeTab, setActiveTab] = useState("Basic Info");
   const [editing, setEditing] = useState(false);
   const [saving, setSaving] = useState(false);
-  const [uploading, setUploading] = useState(false);
   const [editForm, setEditForm] = useState({});
 
   if (!lead) return null;
@@ -68,7 +78,6 @@ export default function LeadDetailModal({ lead, onClose, onLeadUpdated }) {
   const user = JSON.parse(localStorage.getItem("user") || "{}");
   const isAdmin = user?.role === "admin";
   const isAgent = user?.role === "agent";
-  // Both admins and agents can edit lead details
   const canEdit = isAdmin || isAgent;
 
   const initEditForm = () => {
@@ -81,6 +90,7 @@ export default function LeadDetailModal({ lead, onClose, onLeadUpdated }) {
       accountNumber: lead.accountNumber || "",
       ssn: lead.ssn || "",
       address: lead.address || "",
+      address2: lead.address2 || "",
       city: lead.city || "",
       usState: lead.usState || "",
       zip: lead.zip || "",
@@ -102,13 +112,21 @@ export default function LeadDetailModal({ lead, onClose, onLeadUpdated }) {
     });
   };
 
-  const handleStartEdit = () => { initEditForm(); setEditing(true); };
-  const handleCancelEdit = () => { setEditing(false); setEditForm({}); };
+  const handleStartEdit = () => {
+    initEditForm();
+    setEditing(true);
+  };
+
+  const handleCancelEdit = () => {
+    setEditing(false);
+    setEditForm({});
+  };
 
   const handleSave = async () => {
     setSaving(true);
     try {
-      // Admins use the admin endpoint; agents use the standard lead endpoint
+      // Admins can edit everything via the admin endpoint.
+      // Agents edit their own lead's basic/address info via the agent endpoint.
       const endpoint = isAdmin ? `/admin/leads/${lead._id}` : `/leads/${lead._id}`;
       await api.put(endpoint, editForm);
       toast.success("Lead updated successfully!");
@@ -117,24 +135,9 @@ export default function LeadDetailModal({ lead, onClose, onLeadUpdated }) {
       if (onClose) onClose();
     } catch (err) {
       toast.error(err.response?.data?.msg || "Error updating lead!");
-    } finally { setSaving(false); }
-  };
-
-  const handleFileUpload = async (e, type) => {
-    const files = e.target.files;
-    if (!files?.length) return;
-    setUploading(true);
-    try {
-      const formData = new FormData();
-      Array.from(files).forEach(f => formData.append(type, f));
-      await api.post(`/upload/${lead._id}/${type}`, formData, {
-        headers: { "Content-Type": "multipart/form-data" },
-      });
-      toast.success(`${type === "photos" ? "Photos" : "Documents"} uploaded successfully!`);
-      if (onLeadUpdated) onLeadUpdated();
-    } catch (err) {
-      toast.error(err.response?.data?.msg || "Upload failed!");
-    } finally { setUploading(false); }
+    } finally {
+      setSaving(false);
+    }
   };
 
   const setEdit = (field, value) => setEditForm((p) => ({ ...p, [field]: value }));
@@ -194,7 +197,11 @@ export default function LeadDetailModal({ lead, onClose, onLeadUpdated }) {
               <Field label="Receive Text" value={lead.receiveText ? "Yes" : "No"} />
               <Field label="Receive Email" value={lead.receiveEmail ? "Yes" : "No"} />
               <Field label="Customer Consents" value={lead.customerConsents ? "Yes" : "No"} />
-              {editing ? <EditField label="Follow Up" value={editForm.followUp} onChange={(e) => setEdit("followUp", e.target.value)} /> : <Field label="Follow Up" value={lead.followUp} />}
+              {editing ? (
+                <EditField label="Follow Up" value={editForm.followUp} onChange={(e) => setEdit("followUp", e.target.value)} />
+              ) : (
+                <Field label="Follow Up" value={lead.followUp} />
+              )}
             </Section>
             <Section title="Business Info">
               {editing ? (
@@ -234,7 +241,7 @@ export default function LeadDetailModal({ lead, onClose, onLeadUpdated }) {
             {editing ? (
               <>
                 <EditField label="Address" value={editForm.address} onChange={(e) => setEdit("address", e.target.value)} />
-                <Field label="Address 2" value={lead.address2} />
+                <EditField label="Address 2" value={editForm.address2} onChange={(e) => setEdit("address2", e.target.value)} />
                 <EditField label="City" value={editForm.city} onChange={(e) => setEdit("city", e.target.value)} />
                 <EditField label="State" value={editForm.usState} onChange={(e) => setEdit("usState", e.target.value)} />
                 <EditField label="ZIP" value={editForm.zip} onChange={(e) => setEdit("zip", e.target.value)} />
@@ -317,6 +324,7 @@ export default function LeadDetailModal({ lead, onClose, onLeadUpdated }) {
                 <div style={{ width: 32, height: 32, borderRadius: "50%", background: `${log.color}20`, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
                   <div style={{ width: 10, height: 10, borderRadius: "50%", background: log.color }} />
                 </div>
+                {i < 2 && <div style={{ position: "absolute", left: 15, top: 32, width: 2, height: 20, background: "#f1f5f9" }} />}
                 <div>
                   <div style={{ fontSize: 13, fontWeight: 600, color: "#1e293b" }}>{log.action}</div>
                   <div style={{ fontSize: 11, color: "#94a3b8", marginTop: 2 }}>By {log.by} • {new Date(log.date).toLocaleString()}</div>
@@ -399,7 +407,15 @@ export default function LeadDetailModal({ lead, onClose, onLeadUpdated }) {
           <div style={{ textAlign: "center", padding: 40 }}>
             <div style={{ fontSize: 40, marginBottom: 12 }}>📄</div>
             <div style={{ fontSize: 14, fontWeight: 600, color: "#1e293b", marginBottom: 6 }}>Customer Contract Forms</div>
-            <div style={{ fontSize: 13, color: "#94a3b8" }}>{lead.customerConsents ? "Customer has given consent ✅" : "No consent recorded yet"}</div>
+            <div style={{ fontSize: 13, color: "#94a3b8" }}>
+              {lead.customerConsents ? "Customer has given consent ✅" : "No consent recorded yet"}
+            </div>
+            {lead.customerConsents && (
+              <div style={{ marginTop: 16, background: "#f0fdf4", borderRadius: 10, padding: "12px 16px", border: "1px solid #bbf7d0", display: "inline-block" }}>
+                <div style={{ fontSize: 13, color: "#065f46" }}>✅ Customer Consents: Verified</div>
+                <div style={{ fontSize: 11, color: "#94a3b8", marginTop: 4 }}>Language: {lead.language}</div>
+              </div>
+            )}
           </div>
         );
 
@@ -422,41 +438,31 @@ export default function LeadDetailModal({ lead, onClose, onLeadUpdated }) {
         return (
           <div>
             <div style={{ fontSize: 11, fontWeight: 700, color: "#94a3b8", letterSpacing: "0.08em", textTransform: "uppercase", marginBottom: 12 }}>Documents & Photos</div>
-
-
-
             {lead.docs?.length > 0 && (
               <div style={{ marginBottom: 16 }}>
                 <div style={{ fontSize: 12, fontWeight: 600, color: "#64748b", marginBottom: 8 }}>Documents ({lead.docs.length})</div>
                 {lead.docs.map((doc, i) => (
                   <div key={i} style={{ display: "flex", alignItems: "center", gap: 8, padding: "8px 12px", background: "#f8fafc", borderRadius: 8, marginBottom: 6, border: "1px solid #f1f5f9" }}>
                     <span style={{ fontSize: 16 }}>📄</span>
-                    <a 
-                      href={doc.startsWith("http") 
-                        ? `https://docs.google.com/viewer?url=${encodeURIComponent(doc)}`
-                        : `https://crm-backend-vercel.vercel.app${doc}`} 
-                      target="_blank" rel="noreferrer"
-                      style={{ fontSize: 12, color: "#06b6d4", textDecoration: "none" }}>
-                      📄 View Document
+                    <a href={`http://localhost:5000${doc}`} target="_blank" rel="noreferrer" style={{ fontSize: 12, color: "#06b6d4", textDecoration: "none" }}>
+                      {doc.split("/").pop()}
                     </a>
                   </div>
                 ))}
               </div>
             )}
-
             {lead.photos?.length > 0 && (
               <div>
                 <div style={{ fontSize: 12, fontWeight: 600, color: "#64748b", marginBottom: 8 }}>Photos ({lead.photos.length})</div>
                 <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
                   {lead.photos.map((photo, i) => (
-                    <a key={i} href={photo.startsWith("http") ? photo : `https://crm-backend-vercel.vercel.app${photo}`} target="_blank" rel="noreferrer">
-                      <img src={photo.startsWith("http") ? photo : `https://crm-backend-vercel.vercel.app${photo}`} alt={`photo-${i}`} style={{ width: 80, height: 80, objectFit: "cover", borderRadius: 8, border: "1px solid #f1f5f9" }} />
+                    <a key={i} href={`http://localhost:5000${photo}`} target="_blank" rel="noreferrer">
+                      <img src={`http://localhost:5000${photo}`} alt={`photo-${i}`} style={{ width: 80, height: 80, objectFit: "cover", borderRadius: 8, border: "1px solid #f1f5f9" }} />
                     </a>
                   ))}
                 </div>
               </div>
             )}
-
             {(!lead.docs?.length && !lead.photos?.length) && (
               <div style={{ textAlign: "center", padding: 40, color: "#94a3b8" }}>
                 <div style={{ fontSize: 32, marginBottom: 8 }}>📁</div>
@@ -486,18 +492,25 @@ export default function LeadDetailModal({ lead, onClose, onLeadUpdated }) {
           </div>
         );
 
-      default: return null;
+      default:
+        return null;
     }
   };
 
   return (
     <AnimatePresence>
-      <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={onClose}
+      <motion.div
+        initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+        onClick={onClose}
         style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.5)", zIndex: 1000, display: "flex", justifyContent: "flex-end" }}>
-        <motion.div initial={{ x: "100%" }} animate={{ x: 0 }} exit={{ x: "100%" }} transition={{ type: "spring", damping: 30, stiffness: 300 }}
+
+        <motion.div
+          initial={{ x: "100%" }} animate={{ x: 0 }} exit={{ x: "100%" }}
+          transition={{ type: "spring", damping: 30, stiffness: 300 }}
           onClick={(e) => e.stopPropagation()}
           style={{ width: "100%", maxWidth: 560, height: "100vh", background: "#fff", display: "flex", flexDirection: "column", boxShadow: "-8px 0 32px rgba(0,0,0,0.15)" }}>
 
+          {/* Header */}
           <div style={{ padding: "16px 20px", borderBottom: "1px solid #f1f5f9", display: "flex", justifyContent: "space-between", alignItems: "center", flexShrink: 0 }}>
             <div>
               <div style={{ fontSize: 17, fontWeight: 700, color: "#1e293b" }}>{lead.firstName} {lead.lastName}</div>
@@ -507,7 +520,9 @@ export default function LeadDetailModal({ lead, onClose, onLeadUpdated }) {
               {editing ? (
                 <>
                   <motion.button whileHover={{ scale: 1.05 }} onClick={handleCancelEdit}
-                    style={{ padding: "7px 12px", borderRadius: 8, border: "1px solid #e2e8f0", background: "#fff", color: "#64748b", cursor: "pointer", fontSize: 12, fontWeight: 500 }}>Cancel</motion.button>
+                    style={{ padding: "7px 12px", borderRadius: 8, border: "1px solid #e2e8f0", background: "#fff", color: "#64748b", cursor: "pointer", fontSize: 12, fontWeight: 500 }}>
+                    Cancel
+                  </motion.button>
                   <motion.button whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }} onClick={handleSave} disabled={saving}
                     style={{ padding: "7px 14px", borderRadius: 8, border: "none", background: saving ? "#94a3b8" : "linear-gradient(135deg, #f59e0b, #d97706)", color: "#fff", cursor: "pointer", fontSize: 12, fontWeight: 600, display: "flex", alignItems: "center", gap: 4 }}>
                     <MdSave size={14} /> {saving ? "Saving..." : "Save"}
@@ -515,10 +530,12 @@ export default function LeadDetailModal({ lead, onClose, onLeadUpdated }) {
                 </>
               ) : (
                 <>
-                  {canEdit && <motion.button whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }} onClick={handleStartEdit}
-                    style={{ padding: "7px 12px", borderRadius: 8, border: "none", background: "linear-gradient(135deg, #f59e0b, #d97706)", color: "#fff", cursor: "pointer", fontSize: 12, fontWeight: 600, display: "flex", alignItems: "center", gap: 4 }}>
-                    <MdEdit size={14} /> Edit
-                  </motion.button>}
+                  {canEdit && !editing && (
+                    <motion.button whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }} onClick={handleStartEdit}
+                      style={{ padding: "7px 12px", borderRadius: 8, border: "none", background: "linear-gradient(135deg, #f59e0b, #d97706)", color: "#fff", cursor: "pointer", fontSize: 12, fontWeight: 600, display: "flex", alignItems: "center", gap: 4 }}>
+                      <MdEdit size={14} /> Edit
+                    </motion.button>
+                  )}
                   <StatusBadge status={lead.status} />
                   <motion.button whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.9 }} onClick={onClose}
                     style={{ background: "#f1f5f9", border: "none", borderRadius: 8, padding: 8, cursor: "pointer", color: "#64748b", display: "flex" }}>
@@ -529,21 +546,36 @@ export default function LeadDetailModal({ lead, onClose, onLeadUpdated }) {
             </div>
           </div>
 
+          {/* Quick info */}
           <div style={{ padding: "10px 20px", borderBottom: "1px solid #f1f5f9", display: "flex", gap: 16, flexWrap: "wrap", flexShrink: 0, background: "#f8fafc" }}>
-            <div style={{ display: "flex", alignItems: "center", gap: 6, fontSize: 12, color: "#64748b" }}><MdPhone size={14} color="#06b6d4" />{displayPhone(lead.mobilePhone)}</div>
-            <div style={{ display: "flex", alignItems: "center", gap: 6, fontSize: 12, color: "#64748b" }}><MdEmail size={14} color="#8b5cf6" />{lead.primaryEmail || "—"}</div>
-            <div style={{ display: "flex", alignItems: "center", gap: 6, fontSize: 12, color: "#64748b" }}><MdPerson size={14} color="#f59e0b" />{lead.agentType || "—"}</div>
+            <div style={{ display: "flex", alignItems: "center", gap: 6, fontSize: 12, color: "#64748b" }}>
+              <MdPhone size={14} color="#06b6d4" />{displayPhone(lead.mobilePhone)}
+            </div>
+            <div style={{ display: "flex", alignItems: "center", gap: 6, fontSize: 12, color: "#64748b" }}>
+              <MdEmail size={14} color="#8b5cf6" />{lead.primaryEmail || "—"}
+            </div>
+            <div style={{ display: "flex", alignItems: "center", gap: 6, fontSize: 12, color: "#64748b" }}>
+              <MdPerson size={14} color="#f59e0b" />{lead.agentType || "—"}
+            </div>
           </div>
 
+          {/* Tabs */}
           <div style={{ display: "flex", overflowX: "auto", borderBottom: "1px solid #f1f5f9", flexShrink: 0, background: "#fff" }}>
             {tabs.map((tab) => (
               <button key={tab} onClick={() => setActiveTab(tab)}
-                style={{ padding: "10px 14px", border: "none", background: "transparent", fontSize: 12, fontWeight: activeTab === tab ? 600 : 400, color: activeTab === tab ? "#06b6d4" : "#94a3b8", borderBottom: activeTab === tab ? "2px solid #06b6d4" : "2px solid transparent", cursor: "pointer", whiteSpace: "nowrap", transition: "all 0.2s" }}>
+                style={{
+                  padding: "10px 14px", border: "none", background: "transparent",
+                  fontSize: 12, fontWeight: activeTab === tab ? 600 : 400,
+                  color: activeTab === tab ? "#06b6d4" : "#94a3b8",
+                  borderBottom: activeTab === tab ? "2px solid #06b6d4" : "2px solid transparent",
+                  cursor: "pointer", whiteSpace: "nowrap", transition: "all 0.2s",
+                }}>
                 {tab}
               </button>
             ))}
           </div>
 
+          {/* Tab Content */}
           <div style={{ flex: 1, overflowY: "auto", padding: "16px 20px" }}>
             <AnimatePresence mode="wait">
               <motion.div key={activeTab + (editing ? "-edit" : "")} initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }} transition={{ duration: 0.15 }}>
