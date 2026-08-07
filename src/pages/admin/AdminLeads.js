@@ -4,6 +4,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import toast, { Toaster } from "react-hot-toast";
 import { MdRefresh, MdSearch, MdMoreVert, MdEdit, MdClose, MdSave } from "react-icons/md";
 import api from "../../api/axios";
+import LeadDetailModal from "../../components/LeadDetailModal";
 
 const COLORS = ["#f43f8a", "#8b5cf6", "#06b6d4", "#f59e0b", "#10b981"];
 
@@ -179,6 +180,7 @@ export default function AdminLeads({ agentType }) {
   const [updatingId, setUpdatingId] = useState(null);
   const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
   const [editLead, setEditLead] = useState(null);
+  const [selectedLead, setSelectedLead] = useState(null);
 
   useEffect(() => {
     const handleResize = () => setIsMobile(window.innerWidth < 768);
@@ -227,7 +229,7 @@ export default function AdminLeads({ agentType }) {
     <div>
       <Toaster position="top-right" />
 
-      {/* Edit Modal */}
+      {/* Edit Modal (quick edit from 3-dot menu) */}
       <AnimatePresence>
         {editLead && (
           <EditLeadModal
@@ -237,6 +239,15 @@ export default function AdminLeads({ agentType }) {
           />
         )}
       </AnimatePresence>
+
+      {/* Full Lead Detail side panel (opens when clicking a row) */}
+      {selectedLead && (
+        <LeadDetailModal
+          lead={selectedLead}
+          onClose={() => setSelectedLead(null)}
+          onLeadUpdated={fetchLeads}
+        />
+      )}
 
       {/* Header */}
       <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }}
@@ -283,10 +294,11 @@ export default function AdminLeads({ agentType }) {
           <div style={{ padding: 12, display: "flex", flexDirection: "column", gap: 10 }}>
             {filtered.map((lead, i) => (
               <motion.div key={lead._id} initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.04 }}
-                style={{ background: "linear-gradient(135deg, #f8fafc, #f1f5f9)", borderRadius: 14, padding: "14px 16px", border: "1px solid #e2e8f0" }}>
+                onClick={() => setSelectedLead(lead)}
+                style={{ background: "linear-gradient(135deg, #f8fafc, #f1f5f9)", borderRadius: 14, padding: "14px 16px", border: "1px solid #e2e8f0", cursor: "pointer" }}>
                 <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 8 }}>
                   <div style={{ fontSize: 14, fontWeight: 700, color: "#1e293b" }}>{lead.firstName} {lead.lastName}</div>
-                  <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                  <div style={{ display: "flex", alignItems: "center", gap: 8 }} onClick={(e) => e.stopPropagation()}>
                     <StatusBadge status={lead.status} />
                     <LeadActionsMenu lead={lead} onEdit={setEditLead} />
                   </div>
@@ -294,7 +306,7 @@ export default function AdminLeads({ agentType }) {
                 <div style={{ fontSize: 12, color: "#64748b", marginBottom: 3 }}>📱 {displayPhone(lead.mobilePhone)}</div>
                 <div style={{ fontSize: 12, color: "#64748b", marginBottom: 3 }}>👤 {lead.agent?.name} • {lead.agentType}</div>
                 <div style={{ fontSize: 12, color: "#64748b", marginBottom: 10 }}>🔄 {lead.workflowStatus}</div>
-                <div>
+                <div onClick={(e) => e.stopPropagation()}>
                   <label style={{ fontSize: 11, fontWeight: 600, color: "#64748b", display: "block", marginBottom: 5 }}>Payment Status</label>
                   <select value={lead.paymentStatus || ""} disabled={updatingId === lead._id}
                     onChange={(e) => updatePayment(lead._id, e.target.value)}
@@ -322,7 +334,8 @@ export default function AdminLeads({ agentType }) {
               <tbody>
                 {filtered.map((lead, i) => (
                   <motion.tr key={lead._id} initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: i * 0.03 }}
-                    style={{ borderBottom: "1px solid #f1f5f9", transition: "background 0.15s" }}
+                    onClick={() => setSelectedLead(lead)}
+                    style={{ borderBottom: "1px solid #f1f5f9", transition: "background 0.15s", cursor: "pointer" }}
                     onMouseEnter={(e) => e.currentTarget.style.background = "#fffbeb"}
                     onMouseLeave={(e) => e.currentTarget.style.background = "transparent"}>
 
@@ -368,7 +381,7 @@ export default function AdminLeads({ agentType }) {
                       ) : <span style={{ color: "#94a3b8" }}>—</span>}
                     </td>
 
-                    <td style={{ padding: "13px 16px", whiteSpace: "nowrap" }}>
+                    <td style={{ padding: "13px 16px", whiteSpace: "nowrap" }} onClick={(e) => e.stopPropagation()}>
                       <select value={lead.paymentStatus || ""} disabled={updatingId === lead._id}
                         onChange={(e) => updatePayment(lead._id, e.target.value)}
                         style={{ padding: "6px 10px", borderRadius: 8, border: "1px solid #e2e8f0", fontSize: 12, color: "#1e293b", cursor: "pointer", outline: "none", background: "#fff" }}>
@@ -383,7 +396,7 @@ export default function AdminLeads({ agentType }) {
                     <td style={tdStyle}>{new Date(lead.createdAt).toLocaleDateString()}</td>
 
                     {/* 3-dot actions */}
-                    <td style={{ padding: "13px 16px", whiteSpace: "nowrap" }}>
+                    <td style={{ padding: "13px 16px", whiteSpace: "nowrap" }} onClick={(e) => e.stopPropagation()}>
                       <LeadActionsMenu lead={lead} onEdit={setEditLead} />
                     </td>
                   </motion.tr>
