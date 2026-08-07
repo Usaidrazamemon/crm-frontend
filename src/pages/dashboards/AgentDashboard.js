@@ -84,7 +84,7 @@ export default function AgentDashboard() {
   return (
     <div>
       <Toaster position="top-right" />
-      {selectedLead && <LeadDetailModal lead={selectedLead} onClose={() => setSelectedLead(null)} />}
+      {selectedLead && <LeadDetailModal lead={selectedLead} onClose={() => setSelectedLead(null)} onLeadUpdated={fetchLeads} />}
 
       {/* Header */}
       <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }}
