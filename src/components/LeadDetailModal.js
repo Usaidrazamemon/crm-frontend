@@ -67,6 +67,9 @@ export default function LeadDetailModal({ lead, onClose, onLeadUpdated }) {
 
   const user = JSON.parse(localStorage.getItem("user") || "{}");
   const isAdmin = user?.role === "admin";
+  const isAgent = user?.role === "agent";
+  // Both admins and agents can edit lead details
+  const canEdit = isAdmin || isAgent;
 
   const initEditForm = () => {
     setEditForm({
@@ -105,7 +108,9 @@ export default function LeadDetailModal({ lead, onClose, onLeadUpdated }) {
   const handleSave = async () => {
     setSaving(true);
     try {
-      await api.put(`/admin/leads/${lead._id}`, editForm);
+      // Admins use the admin endpoint; agents use the standard lead endpoint
+      const endpoint = isAdmin ? `/admin/leads/${lead._id}` : `/leads/${lead._id}`;
+      await api.put(endpoint, editForm);
       toast.success("Lead updated successfully!");
       setEditing(false);
       if (onLeadUpdated) onLeadUpdated();
@@ -510,7 +515,7 @@ export default function LeadDetailModal({ lead, onClose, onLeadUpdated }) {
                 </>
               ) : (
                 <>
-                  {isAdmin && <motion.button whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }} onClick={handleStartEdit}
+                  {canEdit && <motion.button whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }} onClick={handleStartEdit}
                     style={{ padding: "7px 12px", borderRadius: 8, border: "none", background: "linear-gradient(135deg, #f59e0b, #d97706)", color: "#fff", cursor: "pointer", fontSize: 12, fontWeight: 600, display: "flex", alignItems: "center", gap: 4 }}>
                     <MdEdit size={14} /> Edit
                   </motion.button>}
