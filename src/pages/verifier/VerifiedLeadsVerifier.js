@@ -209,6 +209,7 @@ export default function VerifierDashboard() {
                 <select style={inputStyle} value={verifyForm.workflowStatus} onChange={(e) => setVerifyForm((p) => ({ ...p, workflowStatus: e.target.value }))}>
                   <option value="Pass">Pass</option>
                   <option value="Cancel">Cancel</option>
+                  <option value="Reject">Reject</option>
                   <option value="Fraud">Fraud</option>
                   <option value="Duplicate">Duplicate</option>
                 </select>
