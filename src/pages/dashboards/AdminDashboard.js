@@ -40,6 +40,7 @@ const StatusBadge = ({ status }) => {
     Verified: { bg: "#d1fae5", color: "#065f46" },
     Processed: { bg: "#e0e7ff", color: "#3730a3" },
     Rejected: { bg: "#fee2e2", color: "#991b1b" },
+    Chargeback: { bg: "#fee2e2", color: "#991b1b" },
   };
   const s = config[status] || config.Unverified;
   return <span style={{ background: s.bg, color: s.color, padding: "3px 10px", borderRadius: 20, fontSize: 11, fontWeight: 600 }}>{status}</span>;
