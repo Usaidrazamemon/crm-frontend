@@ -27,6 +27,7 @@ const StatusBadge = ({ status }) => {
     Unverified: { bg: "linear-gradient(135deg, #fef3c7, #fde68a)", color: "#92400e" },
     Verified: { bg: "linear-gradient(135deg, #d1fae5, #a7f3d0)", color: "#065f46" },
     Rejected: { bg: "linear-gradient(135deg, #fee2e2, #fecaca)", color: "#991b1b" },
+    Chargeback: { bg: "linear-gradient(135deg, #fee2e2, #fecaca)", color: "#991b1b" },
     Processed: { bg: "linear-gradient(135deg, #e0e7ff, #c7d2fe)", color: "#3730a3" },
   };
   const s = config[status] || config.Unverified;
