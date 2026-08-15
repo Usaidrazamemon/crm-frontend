@@ -3,6 +3,7 @@ import { motion } from "framer-motion";
 import toast, { Toaster } from "react-hot-toast";
 import { MdRefresh, MdSearch } from "react-icons/md";
 import api from "../../api/axios";
+import LeadDetailModal from "../../components/LeadDetailModal";
 
 const PaymentBadge = ({ status }) => {
   const config = {
@@ -20,6 +21,7 @@ export default function ProcessedLeads({ agentType }) {
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
   const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
+  const [selectedLead, setSelectedLead] = useState(null);
 
   useEffect(() => {
     const handleResize = () => setIsMobile(window.innerWidth < 768);
@@ -100,7 +102,8 @@ export default function ProcessedLeads({ agentType }) {
           <div style={{ padding: 12, display: "flex", flexDirection: "column", gap: 10 }}>
             {filtered.map((lead, i) => (
               <motion.div key={lead._id} initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.04 }}
-                style={{ background: "#f8fafc", borderRadius: 12, padding: "14px 16px", border: "1px solid #f1f5f9" }}>
+                onClick={() => setSelectedLead(lead)}
+                style={{ background: "#f8fafc", borderRadius: 12, padding: "14px 16px", border: "1px solid #f1f5f9", cursor: "pointer" }}>
                 <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 8 }}>
                   <div style={{ fontSize: 14, fontWeight: 700, color: "#1e293b" }}>{lead.firstName} {lead.lastName}</div>
                   <PaymentBadge status={lead.paymentStatus} />
@@ -128,7 +131,8 @@ export default function ProcessedLeads({ agentType }) {
               <tbody>
                 {filtered.map((lead, i) => (
                   <motion.tr key={lead._id} initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: i * 0.04 }}
-                    style={{ borderBottom: "1px solid #f8fafc" }}
+                    onClick={() => setSelectedLead(lead)}
+                    style={{ borderBottom: "1px solid #f8fafc", cursor: "pointer" }}
                     onMouseEnter={(e) => e.currentTarget.style.background = "#f8fafc"}
                     onMouseLeave={(e) => e.currentTarget.style.background = "transparent"}>
                     <td style={{ padding: "13px 16px", fontSize: 12, color: "#94a3b8", fontFamily: "monospace" }}>#{lead._id?.slice(-6).toUpperCase()}</td>
@@ -147,6 +151,14 @@ export default function ProcessedLeads({ agentType }) {
           </div>
         )}
       </motion.div>
+
+      {selectedLead && (
+        <LeadDetailModal
+          lead={selectedLead}
+          onClose={() => setSelectedLead(null)}
+          onLeadUpdated={fetchLeads}
+        />
+      )}
     </div>
   );
 }
