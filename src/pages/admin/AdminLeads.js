@@ -14,6 +14,8 @@ const StatusBadge = ({ status }) => {
     Verified: { bg: "linear-gradient(135deg, #d1fae5, #a7f3d0)", color: "#065f46" },
     Processed: { bg: "linear-gradient(135deg, #e0e7ff, #c7d2fe)", color: "#3730a3" },
     Rejected: { bg: "linear-gradient(135deg, #fee2e2, #fecaca)", color: "#991b1b" },
+    Chargedback: { bg: "linear-gradient(135deg, #fee2e2, #fecaca)", color: "#991b1b" },
+    Chargeback: { bg: "linear-gradient(135deg, #fee2e2, #fecaca)", color: "#991b1b" },
   };
   const s = config[status] || config.Unverified;
   return <span style={{ background: s.bg, color: s.color, padding: "4px 12px", borderRadius: 20, fontSize: 11, fontWeight: 700, whiteSpace: "nowrap", display: "inline-block" }}>{status}</span>;
@@ -131,6 +133,7 @@ function EditLeadModal({ lead, onClose, onSaved }) {
                 <option value="Verified">Verified</option>
                 <option value="Processed">Processed</option>
                 <option value="Rejected">Rejected</option>
+                <option value="Chargeback">Chargeback</option>
               </select>
             </Field>
             <Field label="Workflow Status">
