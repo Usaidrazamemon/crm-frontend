@@ -151,6 +151,20 @@ export default function LeadDetailModal({ lead, onClose, onLeadUpdated }) {
             <Section title="Basic Information">
               {editing ? (
                 <>
+                  {isAdmin ? (
+                    <div>
+                      <label style={labelStyle}>Lead Status</label>
+                      <select style={inputStyle} value={editForm.status} onChange={(e) => setEdit("status", e.target.value)}>
+                        <option value="Unverified">Unverified</option>
+                        <option value="Verified">Verified</option>
+                        <option value="Processed">Processed</option>
+                        <option value="Rejected">Rejected</option>
+                        <option value="Chargeback">Chargeback</option>
+                      </select>
+                    </div>
+                  ) : (
+                    <Field label="Lead Status" value={lead.status} />
+                  )}
                   <EditField label="First Name" value={editForm.firstName} onChange={(e) => setEdit("firstName", e.target.value)} />
                   <EditField label="Last Name" value={editForm.lastName} onChange={(e) => setEdit("lastName", e.target.value)} />
                   <EditField label="Primary Email" value={editForm.primaryEmail} onChange={(e) => setEdit("primaryEmail", e.target.value)} />
