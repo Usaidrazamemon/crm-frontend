@@ -52,6 +52,7 @@ const StatusBadge = ({ status }) => {
     Unverified: { bg: "#fef3c7", color: "#92400e" },
     Verified: { bg: "#d1fae5", color: "#065f46" },
     Rejected: { bg: "#fee2e2", color: "#991b1b" },
+    Chargeback: { bg: "#fee2e2", color: "#991b1b" },
     Processed: { bg: "#e0e7ff", color: "#3730a3" },
     Pass: { bg: "#d1fae5", color: "#065f46" },
     Cancel: { bg: "#fee2e2", color: "#991b1b" },
