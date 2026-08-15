@@ -457,25 +457,42 @@ export default function LeadDetailModal({ lead, onClose, onLeadUpdated }) {
             {lead.docs?.length > 0 && (
               <div style={{ marginBottom: 16 }}>
                 <div style={{ fontSize: 12, fontWeight: 600, color: "#64748b", marginBottom: 8 }}>Documents ({lead.docs.length})</div>
-                {lead.docs.map((doc, i) => (
-                  <div key={i} style={{ display: "flex", alignItems: "center", gap: 8, padding: "8px 12px", background: "#f8fafc", borderRadius: 8, marginBottom: 6, border: "1px solid #f1f5f9" }}>
-                    <span style={{ fontSize: 16 }}>📄</span>
-                    <a href={`http://localhost:5000${doc}`} target="_blank" rel="noreferrer" style={{ fontSize: 12, color: "#06b6d4", textDecoration: "none" }}>
-                      {doc.split("/").pop()}
-                    </a>
-                  </div>
-                ))}
+                {lead.docs.map((doc, i) => {
+                  // Cloudinary URLs are already full https:// links.
+                  // Old local-disk paths (starting with /uploads/...) won't work anymore
+                  // since those files never persisted on the server.
+                  const docUrl = doc.startsWith("http") ? doc : null;
+                  return (
+                    <div key={i} style={{ display: "flex", alignItems: "center", gap: 8, padding: "8px 12px", background: "#f8fafc", borderRadius: 8, marginBottom: 6, border: "1px solid #f1f5f9" }}>
+                      <span style={{ fontSize: 16 }}>📄</span>
+                      {docUrl ? (
+                        <a href={docUrl} target="_blank" rel="noreferrer" style={{ fontSize: 12, color: "#06b6d4", textDecoration: "none" }}>
+                          {doc.split("/").pop()}
+                        </a>
+                      ) : (
+                        <span style={{ fontSize: 12, color: "#cbd5e1" }}>File unavailable (uploaded before storage fix)</span>
+                      )}
+                    </div>
+                  );
+                })}
               </div>
             )}
             {lead.photos?.length > 0 && (
               <div>
                 <div style={{ fontSize: 12, fontWeight: 600, color: "#64748b", marginBottom: 8 }}>Photos ({lead.photos.length})</div>
                 <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
-                  {lead.photos.map((photo, i) => (
-                    <a key={i} href={`http://localhost:5000${photo}`} target="_blank" rel="noreferrer">
-                      <img src={`http://localhost:5000${photo}`} alt={`photo-${i}`} style={{ width: 80, height: 80, objectFit: "cover", borderRadius: 8, border: "1px solid #f1f5f9" }} />
-                    </a>
-                  ))}
+                  {lead.photos.map((photo, i) => {
+                    const photoUrl = photo.startsWith("http") ? photo : null;
+                    return photoUrl ? (
+                      <a key={i} href={photoUrl} target="_blank" rel="noreferrer">
+                        <img src={photoUrl} alt={`photo-${i}`} style={{ width: 80, height: 80, objectFit: "cover", borderRadius: 8, border: "1px solid #f1f5f9" }} />
+                      </a>
+                    ) : (
+                      <div key={i} style={{ width: 80, height: 80, borderRadius: 8, border: "1px solid #f1f5f9", background: "#f8fafc", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 10, color: "#cbd5e1", textAlign: "center", padding: 4 }}>
+                        Unavailable
+                      </div>
+                    );
+                  })}
                 </div>
               </div>
             )}
