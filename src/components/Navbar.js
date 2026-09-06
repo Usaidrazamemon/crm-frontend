@@ -13,7 +13,7 @@ const navConfig = {
     { label: "D2D Sales", path: "/admin/d2d", icon: <MdPeople size={20} />, subPath: "/admin/d2d/processed" },
     { label: "Inhouse Sales", path: "/admin/inhouse", icon: <MdBarChart size={20} />, subPath: "/admin/inhouse/processed" },
     { label: "Agents", path: "/admin/agents", icon: <MdPersonAdd size={20} />, subPath: "/admin/agents/processed" },
-    { label: "Create Profile", path: "/admin/create-profile", icon: <MdPersonAdd size={20} /> },
+    { label: "Manage Users", path: "/admin/create-profile", icon: <MdPersonAdd size={20} /> },
   ],
   agent: [
     { label: "Home", path: "/agent", icon: <MdDashboard size={20} /> },
