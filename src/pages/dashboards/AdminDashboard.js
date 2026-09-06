@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useCallback } from "react";
+import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import toast, { Toaster } from "react-hot-toast";
 import {
@@ -10,9 +11,12 @@ import api from "../../api/axios";
 
 const COLORS = ["#f43f8a", "#8b5cf6", "#06b6d4", "#f59e0b", "#10b981", "#3b82f6"];
 
-const GradientCard = ({ label, value, gradient, icon, delay }) => (
+const GradientCard = ({ label, value, gradient, icon, delay, onClick }) => (
   <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay }}
-    style={{ borderRadius: 16, padding: "20px 24px", flex: 1, minWidth: 130, background: gradient, color: "#fff", position: "relative", overflow: "hidden", boxShadow: "0 8px 24px rgba(0,0,0,0.15)" }}>
+    whileHover={onClick ? { scale: 1.03, y: -2 } : {}}
+    whileTap={onClick ? { scale: 0.98 } : {}}
+    onClick={onClick}
+    style={{ borderRadius: 16, padding: "20px 24px", flex: 1, minWidth: 130, background: gradient, color: "#fff", position: "relative", overflow: "hidden", boxShadow: "0 8px 24px rgba(0,0,0,0.15)", cursor: onClick ? "pointer" : "default" }}>
     <div style={{ position: "absolute", right: -10, bottom: -10, fontSize: 60, opacity: 0.15 }}>{icon}</div>
     <div style={{ fontSize: 11, opacity: 0.85, marginBottom: 6, letterSpacing: "0.05em", textTransform: "uppercase" }}>{label}</div>
     <div style={{ fontSize: 30, fontWeight: 700 }}>{value}</div>
@@ -40,13 +44,13 @@ const StatusBadge = ({ status }) => {
     Verified: { bg: "#d1fae5", color: "#065f46" },
     Processed: { bg: "#e0e7ff", color: "#3730a3" },
     Rejected: { bg: "#fee2e2", color: "#991b1b" },
-    Chargeback: { bg: "#fee2e2", color: "#991b1b" },
   };
   const s = config[status] || config.Unverified;
   return <span style={{ background: s.bg, color: s.color, padding: "3px 10px", borderRadius: 20, fontSize: 11, fontWeight: 600 }}>{status}</span>;
 };
 
 export default function AdminDashboard() {
+  const navigate = useNavigate();
   const [stats, setStats] = useState(null);
   const [recentLeads, setRecentLeads] = useState([]);
   const [recentVerified, setRecentVerified] = useState([]);
@@ -176,10 +180,10 @@ export default function AdminDashboard() {
         <>
           {/* Gradient Cards */}
           <div style={{ display: "flex", gap: 12, marginBottom: 20, flexWrap: "wrap" }}>
-            <GradientCard label="Total Leads" value={total} gradient="linear-gradient(135deg, #f43f8a, #e11d6b)" icon="📋" delay={0.1} />
-            <GradientCard label="Unverified" value={unverified} gradient="linear-gradient(135deg, #8b5cf6, #6d28d9)" icon="⏳" delay={0.2} />
-            <GradientCard label="Verified" value={verified} gradient="linear-gradient(135deg, #06b6d4, #0284c7)" icon="✅" delay={0.3} />
-            <GradientCard label="Processed" value={processed} gradient="linear-gradient(135deg, #f59e0b, #d97706)" icon="🎯" delay={0.4} />
+            <GradientCard label="Total Leads" value={total} gradient="linear-gradient(135deg, #f43f8a, #e11d6b)" icon="📋" delay={0.1} onClick={() => navigate("/admin/leads")} />
+            <GradientCard label="Unverified" value={unverified} gradient="linear-gradient(135deg, #8b5cf6, #6d28d9)" icon="⏳" delay={0.2} onClick={() => navigate("/admin/leads?status=Unverified")} />
+            <GradientCard label="Verified" value={verified} gradient="linear-gradient(135deg, #06b6d4, #0284c7)" icon="✅" delay={0.3} onClick={() => navigate("/admin/leads?status=Verified")} />
+            <GradientCard label="Processed" value={processed} gradient="linear-gradient(135deg, #f59e0b, #d97706)" icon="🎯" delay={0.4} onClick={() => navigate("/admin/leads/processed")} />
           </div>
 
           {/* Charts Row */}
