@@ -1,10 +1,10 @@
 import { displayPhone } from '../../utils/phoneFormat';
+import { useSearchParams } from "react-router-dom";
 import React, { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import toast, { Toaster } from "react-hot-toast";
 import { MdRefresh, MdSearch, MdMoreVert, MdEdit, MdClose, MdSave } from "react-icons/md";
 import api from "../../api/axios";
-import LeadDetailModal from "../../components/LeadDetailModal";
 
 const COLORS = ["#f43f8a", "#8b5cf6", "#06b6d4", "#f59e0b", "#10b981"];
 
@@ -14,8 +14,6 @@ const StatusBadge = ({ status }) => {
     Verified: { bg: "linear-gradient(135deg, #d1fae5, #a7f3d0)", color: "#065f46" },
     Processed: { bg: "linear-gradient(135deg, #e0e7ff, #c7d2fe)", color: "#3730a3" },
     Rejected: { bg: "linear-gradient(135deg, #fee2e2, #fecaca)", color: "#991b1b" },
-    Chargedback: { bg: "linear-gradient(135deg, #fee2e2, #fecaca)", color: "#991b1b" },
-    Chargeback: { bg: "linear-gradient(135deg, #fee2e2, #fecaca)", color: "#991b1b" },
   };
   const s = config[status] || config.Unverified;
   return <span style={{ background: s.bg, color: s.color, padding: "4px 12px", borderRadius: 20, fontSize: 11, fontWeight: 700, whiteSpace: "nowrap", display: "inline-block" }}>{status}</span>;
@@ -133,7 +131,6 @@ function EditLeadModal({ lead, onClose, onSaved }) {
                 <option value="Verified">Verified</option>
                 <option value="Processed">Processed</option>
                 <option value="Rejected">Rejected</option>
-                <option value="Chargeback">Chargeback</option>
               </select>
             </Field>
             <Field label="Workflow Status">
@@ -141,7 +138,6 @@ function EditLeadModal({ lead, onClose, onSaved }) {
                 <option value="">-- Select --</option>
                 <option value="Pass">Pass</option>
                 <option value="Cancel">Cancel</option>
-                <option value="Reject">Reject</option>
                 <option value="Duplicate">Duplicate</option>
                 <option value="Fraud">Fraud</option>
                 <option value="Pending">Pending</option>
@@ -184,7 +180,8 @@ export default function AdminLeads({ agentType }) {
   const [updatingId, setUpdatingId] = useState(null);
   const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
   const [editLead, setEditLead] = useState(null);
-  const [selectedLead, setSelectedLead] = useState(null);
+  const [searchParams] = useSearchParams();
+  const statusFilter = searchParams.get("status"); // e.g. "Unverified" or "Verified", from dashboard card click
 
   useEffect(() => {
     const handleResize = () => setIsMobile(window.innerWidth < 768);
@@ -217,6 +214,7 @@ export default function AdminLeads({ agentType }) {
   };
 
   const filtered = leads.filter((l) => {
+    if (statusFilter && l.status !== statusFilter) return false;
     const s = search.toLowerCase();
     return (
       `${l.firstName} ${l.lastName}`.toLowerCase().includes(s) ||
@@ -233,7 +231,7 @@ export default function AdminLeads({ agentType }) {
     <div>
       <Toaster position="top-right" />
 
-      {/* Edit Modal (quick edit from 3-dot menu) */}
+      {/* Edit Modal */}
       <AnimatePresence>
         {editLead && (
           <EditLeadModal
@@ -244,21 +242,12 @@ export default function AdminLeads({ agentType }) {
         )}
       </AnimatePresence>
 
-      {/* Full Lead Detail side panel (opens when clicking a row) */}
-      {selectedLead && (
-        <LeadDetailModal
-          lead={selectedLead}
-          onClose={() => setSelectedLead(null)}
-          onLeadUpdated={fetchLeads}
-        />
-      )}
-
       {/* Header */}
       <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }}
         style={{ marginBottom: 20, display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: 12 }}>
         <div>
           <h1 style={{ fontSize: isMobile ? 20 : 24, fontWeight: 700, color: "#1e293b", margin: 0 }}>
-            {agentType ? `${agentType} Leads` : "All Leads"}
+            {agentType ? `${agentType} Leads` : "All Leads"}{statusFilter ? ` — ${statusFilter}` : ""}
           </h1>
           <p style={{ color: "#94a3b8", fontSize: 13, margin: "4px 0 0" }}>{filtered.length} leads found</p>
         </div>
@@ -298,11 +287,10 @@ export default function AdminLeads({ agentType }) {
           <div style={{ padding: 12, display: "flex", flexDirection: "column", gap: 10 }}>
             {filtered.map((lead, i) => (
               <motion.div key={lead._id} initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.04 }}
-                onClick={() => setSelectedLead(lead)}
-                style={{ background: "linear-gradient(135deg, #f8fafc, #f1f5f9)", borderRadius: 14, padding: "14px 16px", border: "1px solid #e2e8f0", cursor: "pointer" }}>
+                style={{ background: "linear-gradient(135deg, #f8fafc, #f1f5f9)", borderRadius: 14, padding: "14px 16px", border: "1px solid #e2e8f0" }}>
                 <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 8 }}>
                   <div style={{ fontSize: 14, fontWeight: 700, color: "#1e293b" }}>{lead.firstName} {lead.lastName}</div>
-                  <div style={{ display: "flex", alignItems: "center", gap: 8 }} onClick={(e) => e.stopPropagation()}>
+                  <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
                     <StatusBadge status={lead.status} />
                     <LeadActionsMenu lead={lead} onEdit={setEditLead} />
                   </div>
@@ -310,7 +298,7 @@ export default function AdminLeads({ agentType }) {
                 <div style={{ fontSize: 12, color: "#64748b", marginBottom: 3 }}>📱 {displayPhone(lead.mobilePhone)}</div>
                 <div style={{ fontSize: 12, color: "#64748b", marginBottom: 3 }}>👤 {lead.agent?.name} • {lead.agentType}</div>
                 <div style={{ fontSize: 12, color: "#64748b", marginBottom: 10 }}>🔄 {lead.workflowStatus}</div>
-                <div onClick={(e) => e.stopPropagation()}>
+                <div>
                   <label style={{ fontSize: 11, fontWeight: 600, color: "#64748b", display: "block", marginBottom: 5 }}>Payment Status</label>
                   <select value={lead.paymentStatus || ""} disabled={updatingId === lead._id}
                     onChange={(e) => updatePayment(lead._id, e.target.value)}
@@ -338,8 +326,7 @@ export default function AdminLeads({ agentType }) {
               <tbody>
                 {filtered.map((lead, i) => (
                   <motion.tr key={lead._id} initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: i * 0.03 }}
-                    onClick={() => setSelectedLead(lead)}
-                    style={{ borderBottom: "1px solid #f1f5f9", transition: "background 0.15s", cursor: "pointer" }}
+                    style={{ borderBottom: "1px solid #f1f5f9", transition: "background 0.15s" }}
                     onMouseEnter={(e) => e.currentTarget.style.background = "#fffbeb"}
                     onMouseLeave={(e) => e.currentTarget.style.background = "transparent"}>
 
@@ -385,7 +372,7 @@ export default function AdminLeads({ agentType }) {
                       ) : <span style={{ color: "#94a3b8" }}>—</span>}
                     </td>
 
-                    <td style={{ padding: "13px 16px", whiteSpace: "nowrap" }} onClick={(e) => e.stopPropagation()}>
+                    <td style={{ padding: "13px 16px", whiteSpace: "nowrap" }}>
                       <select value={lead.paymentStatus || ""} disabled={updatingId === lead._id}
                         onChange={(e) => updatePayment(lead._id, e.target.value)}
                         style={{ padding: "6px 10px", borderRadius: 8, border: "1px solid #e2e8f0", fontSize: 12, color: "#1e293b", cursor: "pointer", outline: "none", background: "#fff" }}>
@@ -400,7 +387,7 @@ export default function AdminLeads({ agentType }) {
                     <td style={tdStyle}>{new Date(lead.createdAt).toLocaleDateString()}</td>
 
                     {/* 3-dot actions */}
-                    <td style={{ padding: "13px 16px", whiteSpace: "nowrap" }} onClick={(e) => e.stopPropagation()}>
+                    <td style={{ padding: "13px 16px", whiteSpace: "nowrap" }}>
                       <LeadActionsMenu lead={lead} onEdit={setEditLead} />
                     </td>
                   </motion.tr>
